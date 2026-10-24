@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IE Anagram Rush</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fffaf4;--card:#fff;--ink:#1f2933;--mute:#6b7280;--acc:#d97706;--accink:#fff;--line:#e8dfd2;--ok:#15803d;--bad:#b91c1c;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15130f;--card:#201d17;--ink:#f3efe8;--mute:#a39b8c;--acc:#f59e0b;--accink:#1a1306;--line:#3a352b;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:0}
+.sub{color:var(--mute);margin:2px 0 14px;font-size:.9rem}
+.modes{margin-bottom:12px}
+.modes button{width:100%}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 12px;cursor:pointer}
+button.on,button.primary{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+.stats{display:flex;gap:8px;margin-bottom:12px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}
+.stat b{display:block;font-size:1.4rem}
+.stat span{font-size:.75rem;color:var(--mute)}
+.rack{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.tile{width:44px;height:52px;font-size:1.4rem;font-weight:700;text-transform:uppercase;padding:0}
+.tile.used{opacity:.3}
+.cur{min-height:52px;border:2px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.msg{min-height:1.4em;text-align:center;font-size:.9rem;margin:6px 0;color:var(--mute)}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.row{display:flex;gap:8px;margin-top:8px}
+.row button{flex:1}
+h2{font-size:1rem;margin:18px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.85rem}
+.chip small{color:var(--mute)}
+.foot{color:var(--mute);font-size:.8rem;margin-top:20px}
+input{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:12px;-webkit-user-select:text;user-select:text}
+@media print{body{display:none}}
+body.shield main{filter:blur(22px);pointer-events:none}
+</style>
+</head>
+<body>
+<main>
+<h1>IE Anagram Rush</h1>
+<p class="sub">Build industrial engineering terms from the rack. Longer terms score more, each letter used once.</p>
+<div class="modes"><button class="on">Play · 120 seconds</button></div>
+<input id="nm" placeholder="Your name or roll number" maxlength="30" autocomplete="off">
+<div class="stats">
+<div class="stat"><b id="time">2:00</b><span>Time</span></div>
+<div class="stat"><b id="score">0</b><span>Score</span></div>
+<div class="stat"><b id="count">0</b><span>Terms</span></div>
+<div class="stat"><b id="best">0</b><span>Best</span></div>
+</div>
+<div class="cur" id="cur">&nbsp;</div>
+<div class="msg" id="msg">Press Start round to begin.</div>
+<div class="rack" id="rack"></div>
+<div class="row">
+<button id="play" disabled>Play term</button>
+<button id="back" disabled>⌫</button>
+<button id="clear" disabled>Clear</button>
+<button id="shuf" disabled>Shuffle</button>
+</div>
+<div class="row"><button id="start" class="primary">Start round</button><button id="finish" disabled>Finish round</button></div>
+<h2>Your terms</h2>
+<div class="chips" id="found"></div>
+<div class="msg" id="code"></div>
+<p class="foot">Each round gives you a fresh random rack. Your best score is saved in this browser.</p>
+</main>
+<script>
+const WORDS=("kaizen kanban lean takt muda mura muri gemba andon jidoka heijunka sigma defect defects yield cycle queue queues batch lot lots flow pull push stock buffer bottleneck throughput capacity utilization efficiency productivity ergonomics ergonomic safety quality control chart pareto fishbone ishikawa variance mean median mode sample sampling process processes standard time motion study layout facility cell line balance balancing station workstation task tasks work worker labor cost costing budget inventory forecast forecasting demand supply chain logistics warehouse routing scheduling schedule sequencing dispatch lead setup changeover smed maintenance reliability failure downtime uptime availability performance waste value stream mapping gantt critical path pert crash slack float risk agile dmaic define measure analyze improve metric benchmark audit inspect inspection tolerance specification gauge regression simulation markov optimization linear programming simplex model constraint objective variable integer network assignment transportation heuristic algorithm automation robot robotics sensor eoq reorder backorder shortage bullwhip vendor supplier procurement sourcing outsourcing kitting visual factory system anthropometry fatigue workload posture reach lathe milling drill press mold tool tooling fixture jig assembly conveyor pallet forklift dock picking packing shipping kit bin rack shelf cart tote scrap rework yields rate rates unit units output input outputs inputs step steps stage station stations loop loops cause effect root trend trends data cpk spc sop bom mrp erp cnc jit abc fifo lifo oee tpm wip kpi okr roi npv irr ergo plan plans planning order orders ordering route routes tour trip trips node nodes arc arcs edge edges path paths tree trees graph graphs cut cuts min max sum sums rank ranks test tests run runs sort sorts rule rules shift shifts crew crews team teams hour hours day days week weeks lag lags gap gaps bias error errors noise signal alpha beta gamma delta lambda theta mu rho zeta ie or qc qa pm ci pi ct lt wc ot ev sd cv tqm cad cam cim agv sku ltl ftl rfq job hub tag map net raw set fix pin pro pay cap bar die gas fte eta lab man ops fit mix aid age end key low top use van way web tax tip tap pit pot oil red sew ton lbs mph rpm psi ohm amp cog fob bay aisle dep rev").split(" ");
+const LIST=[...new Set(WORDS.filter(w=>w.length>=2))];
+const SET=new Set(LIST);
+const $=id=>document.getElementById(id);
+const DUR=120;
+let rack=[],used=[],cur="",found=[],score=0,left=DUR,timer=null,running=false;
+function can(w,r){const c={};for(const ch of r)c[ch]=(c[ch]||0)+1;for(const ch of w){if(!c[ch])return false;c[ch]--}return true}
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeRack(){const c=LIST.filter(w=>w.length>=8&&w.length<=12);
+for(let i=0;i<60;i++){const t=c[Math.floor(Math.random()*c.length)];const k=shuffle([...t]);if(LIST.filter(w=>can(w,k)).length>=10)return k}
+return shuffle([...c[0]])}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function setMsg(t,c){const m=$("msg");m.textContent=t;m.className="msg "+(c||"")}
+function drawRack(){const el=$("rack");el.innerHTML="";rack.forEach((ch,i)=>{const b=document.createElement("button");b.className="tile"+(used.includes(i)?" used":"");b.textContent=ch;b.disabled=!running||used.includes(i);b.onclick=()=>add(i);el.appendChild(b)})}
+function drawCur(){$("cur").innerHTML=cur?cur.toUpperCase():"&nbsp;"}
+function drawFound(){$("found").innerHTML=found.map(w=>'<span class="chip">'+w+" <small>+"+w.length*w.length+"</small></span>").join("")}
+function stats(){$("time").textContent=fmt(left);$("score").textContent=score;$("count").textContent=found.length;$("best").textContent=store("iear-best")||0}
+function add(i){if(!running||used.includes(i))return;used.push(i);cur+=rack[i];drawCur();drawRack()}
+function clearCur(){used=[];cur="";drawCur();drawRack()}
+function back(){if(!used.length)return;used.pop();cur=cur.slice(0,-1);drawCur();drawRack()}
+function submit(){if(!running)return;const w=cur;
+if(w.length<2){setMsg("Terms need at least 2 letters.","bad");return}
+if(found.includes(w)){setMsg("Already found.","bad");clearCur();return}
+if(!SET.has(w)){setMsg("“"+w+"” isn’t in the IE term list.","bad");clearCur();return}
+found.push(w);score+=w.length*w.length;setMsg("+"+w.length*w.length+" for "+w+"!","ok");clearCur();drawFound();stats()}
+function ctl(on){["play","back","clear","shuf","finish"].forEach(id=>$(id).disabled=!on);$("start").disabled=on}
+function newRack(){rack=makeRack();used=[];cur="";found=[];score=0;left=DUR;drawRack();drawCur();drawFound();stats()}
+function start(){const n=$("nm").value.trim();if(!n){setMsg("Enter your name first.","bad");return}
+store("iear-name",n);$("code").textContent="";newRack();
+running=true;ctl(true);drawRack();setMsg("Go! Type or tap letters, then press Enter.");
+clearInterval(timer);timer=setInterval(()=>{left--;stats();if(left<=0)end()},1000)}
+function end(){if(!running)return;running=false;clearInterval(timer);left=Math.max(left,0);ctl(false);clearCur();
+const b=+(store("iear-best")||0);if(score>b)store("iear-best",String(score));stats();
+setMsg("Time! You scored "+score+" with "+found.length+" terms.","ok");report()}
+function report(){const n=$("nm").value.trim();const c=hash(n+"|"+score+"|"+found.length).toString(36).toUpperCase().slice(0,6);
+$("code").textContent="Result: "+n+" | "+score+" pts | "+found.length+" terms | code "+c}
+$("start").onclick=start;$("finish").onclick=end;$("play").onclick=submit;$("back").onclick=back;$("clear").onclick=clearCur;
+$("shuf").onclick=()=>{if(!running)return;clearCur();shuffle(rack);drawRack()};
+document.addEventListener("keydown",e=>{if(!running)return;
+if(e.key==="Enter"){submit();return}
+if(e.key==="Backspace"){back();return}
+if(/^[a-z]$/i.test(e.key)){const ch=e.key.toLowerCase();const i=rack.findIndex((c,k)=>c===ch&&!used.includes(k));if(i>-1)add(i)}});
+const shield=on=>document.body.classList.toggle("shield",on);
+window.addEventListener("blur",()=>shield(true));
+window.addEventListener("focus",()=>shield(false));
+document.addEventListener("visibilitychange",()=>shield(document.hidden));
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("keyup",e=>{if(e.key==="PrintScreen"){try{navigator.clipboard.writeText("Screenshots are disabled")}catch(x){}shield(true);setTimeout(()=>shield(false),1500)}});
+const sv=store("iear-name");if(sv)$("nm").value=sv;
+newRack();
+</script>
+</body>
+</html>
